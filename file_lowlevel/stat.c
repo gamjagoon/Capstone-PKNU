@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     }
 
     printf("filename: %s\n",argv[1]);
-    printf("size: %d\n",statbuf.st_size);
+    printf("size: %ld\n",statbuf.st_size);
     if(S_ISDIR(statbuf.st_mode)){
         printf("it is directoty\n");
     }else if(S_ISREG(statbuf.st_mode)){
