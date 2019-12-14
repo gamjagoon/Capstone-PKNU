@@ -8,6 +8,7 @@ int main(int argc,char **argv)
 {
 	int shmid;
 	void *shared_memory = (void *)0;
+	FILE *fp;
 	char buf[1024];
 	int skey = 5678;
 
@@ -15,7 +16,7 @@ int main(int argc,char **argv)
 	int local_num;
 
 	//**공유메모리 공간을 만든다
-	shmid = shmget( (key_t)skey, sizeof(int), 066|IPC_CREAT);
+	shmid = shmget( (key_t)skey, sizeof(int), 0666|IPC_CREAT);
 	if(shmid == -1){
 		perror("shmget failed : ");
 		exit(0);
@@ -35,10 +36,10 @@ int main(int argc,char **argv)
 	for(;;)
 	{
 		local_num = 0;
-		FILE *fp = popen("ps axh","r");
+		fp = popen("ps axh","r");
 		if(fp != NULL)
 		{
-			while(fgets(buff,1024,fp)){
+			while(fgets(buf,1024,fp)){
 				local_num++;
 			}
 		}
