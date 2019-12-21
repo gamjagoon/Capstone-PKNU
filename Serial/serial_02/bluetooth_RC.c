@@ -65,6 +65,7 @@ int main()
 			}
 		}
 	}
+	
 	//**read serial end write at Data_1;
 	int i = 0;
 	char ch;

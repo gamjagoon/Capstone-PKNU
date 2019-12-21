@@ -20,7 +20,6 @@ unsigned long baud = 9600;
 unsigned long _time=0;
 unsigned long inteval = 20;
 char *device[] = {"/dev/ttyACM0","/dev/ttyACM1"};
-char filepath[] = "Data_1";
 pthread_t p_thread;
 int j = 0;
 
@@ -32,12 +31,6 @@ void *commend_thread(void *p)
 		if(ch == '\n')continue;
 		if(ch != ';'){
 			commend_buf[j++] = ch;
-		}
-		else if(j == 98){
-			fprintf(stdout,"buf overflow\n");
-			fflush(stdout);
-			memset(commend_buf,0,sizeof(commend_buf));
-			j = 0;
 		}
 		else{
 			commend_buf[j++] = ';';
@@ -84,7 +77,7 @@ int main()
 	while(1){
 		if(millis()-_time>=inteval)
 		{
-			if( (fd = open (filepath, O_WRONLY|O_TRUNC|O_CREAT,0644))  < 0 )
+			if( (fd = open ("Data_1", O_WRONLY|O_TRUNC|O_CREAT,0644))  < 0 )
 			{
 				fprintf(stdout,"open() fail retry \n");
 				_time = millis();
@@ -113,12 +106,6 @@ int main()
 				ch = serialGetchar(sd);
 				if(ch != ';'){
 					read_buf[i++] = ch;
-				}
-				else if(i == 97){
-					fprintf(stdout,"buf overflow\n");
-					fflush(stdout);
-					memset(read_buf,0,sizeof(read_buf));
-					i = 0;
 				}
 				else{
 					off_t a = lseek(fd, 0, SEEK_SET);
