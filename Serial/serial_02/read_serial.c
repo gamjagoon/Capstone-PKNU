@@ -13,11 +13,15 @@
 //sudo gcc read_serial.c -o read_serial -l wiringPi -lpthread
 char read_buf[MAX_BUF];
 char commend_buf[MAX_BUF];
-int sd;
-int fd;
+int sd, fd;
 unsigned long baud = 9600;
-unsigned long _time=0;
-unsigned long inteval = 20;
+unsigned long currentMillis;
+
+unsigned long previousMillis_connect = 0;
+unsigned long previousMillis_read = 0;
+
+const long connect_interval = 50;
+const long read_interval = 31;
 char *device[] = {"/dev/ttyACM0","/dev/ttyACM1"};
 pthread_t p_thread;
 int j = 0;
@@ -48,16 +52,18 @@ int k = 0;
 int main()
 {
 	//check for this process
+
 	printf("%s \n", "serial begin\n");
 	fflush(stdout);
 	//!open serial
 	while(1){
-		if(millis()-_time>=inteval)
+		currentMillis = millis();
+		if(currentMillis-previousMillis_connect>=connect_interval)
 		{
 			if( (sd = serialOpen(device[k], baud)) < 0)
 			{
 				fprintf(stdout,"serailOpen() fail retry\n");
-				_time = millis();
+				previousMillis_connect = millis();
 				k++;
 				continue;
 			}
@@ -74,12 +80,13 @@ int main()
 	serialFlush (sd);
 	//!open file
 	while(1){
-		if(millis()-_time>=inteval)
+		currentMillis = millis();
+		if(currentMillis-previousMillis_connect>=connect_interval)
 		{
 			if( (fd = open ("Data_1", O_WRONLY|O_TRUNC|O_CREAT,0644))  < 0 )
 			{
 				fprintf(stdout,"open() fail retry \n");
-				_time = millis();
+				previousMillis_connect = millis();
 				continue;
 			}
 			else{
@@ -88,6 +95,8 @@ int main()
 			}
 		}
 	}
+
+
 	//**read serial end write at Data_1;
 	int i = 0;
 	char ch;
@@ -97,8 +106,11 @@ int main()
 		exit(1);
 	}
 	fflush(stdin);
+
+
 	while(1){
-		if(millis()-_time>=inteval)
+		currentMillis = millis();
+		if(currentMillis-previousMillis_read>=read_interval)
 		{
 			if(serialDataAvail (sd))
 			{
@@ -117,7 +129,7 @@ int main()
 					serialFlush (sd);
 				}
 			}
-			_time = millis();
+			previousMillis_read= millis();
 		}
 	}
 	close(fd);
