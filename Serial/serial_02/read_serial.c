@@ -21,7 +21,7 @@ unsigned long previousMillis_connect = 0;
 unsigned long previousMillis_read = 0;
 
 const long connect_interval = 50;
-const long read_interval = 31;
+const long read_interval = 30;
 char *device[] = {"/dev/ttyACM0","/dev/ttyACM1"};
 pthread_t p_thread;
 int j = 0;
@@ -115,16 +115,18 @@ int main()
 			if(serialDataAvail (sd))
 			{
 				ch = serialGetchar(sd);
-				if(ch != ';'){
+				if(ch == '$')
+				{
+					i = 0;
 					read_buf[i++] = ch;
-				}
-				else{
+					while( (ch = serialGetchar(sd) ) != ';')
+					{
+						read_buf[i++] = ch;
+					}
 					off_t a = lseek(fd, 0, SEEK_SET);
 					read_buf[i++] = ch;
 					read_buf[i] = '\0';
-
 					int n = write(fd,read_buf,i);
-					i = 0;
 					memset(read_buf,0,sizeof(read_buf));
 					serialFlush (sd);
 				}
